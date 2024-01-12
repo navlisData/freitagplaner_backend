@@ -22,28 +22,17 @@ server.get('/', (req, res)=> {
     res.sendFile('index.html', {root: __dirname});
 });
 
-function minimumApiMatch(year, state) {
-    //Year and state are not allowed to be null
-    if(year && state) {
-        year = parseInt(year);
-
-        //Year and state has always to match their types
-        const validStates = ['BW', 'BY', 'BE', 'BB', 'HB', 'HH', 'HE', 'MV', 'NI', 'NW', 'RP', 'SL', 'SN', 'ST', 'SH', 'TH'];
-        if (!isNaN(year) && year >= 1900 && typeof state === 'string' && validStates.includes(state.toUpperCase())) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function fullApiMatch(query) {
-    if ((query.days) &&
+function generateProfileByParameter(query) {
+    if ((query.year) &&
+        (query.state) &&
+        (query.days) &&
         (query.startmonth || query.startmonth === 0) &&
         (query.endmonth || query.endmonth === 0) &&
         (query.mindays) &&
         (query.maxdays) &&
         query.correctdates && (query.correctdates === 'true' || query.correctdates === 'false') &&
-        query.saturdayaswd && (query.saturdayaswd === 'true' || query.saturdayaswd === 'false')) {
+        query.saturdayaswd && (query.saturdayaswd === 'true' || query.saturdayaswd === 'false'))
+    {
 
         const calculateProfile = {
             year: parseInt(query.year),
@@ -57,7 +46,11 @@ function fullApiMatch(query) {
             saturdayAsWd: query.saturdayaswd === 'true' ? true : false
         };
 
-        if(!isNaN(calculateProfile.days) && !isNaN(calculateProfile.startMonth) && !isNaN(calculateProfile.endMonth) && !isNaN(calculateProfile.minDays) && !isNaN(calculateProfile.maxDays)) {
+        const validStates = ['BW', 'BY', 'BE', 'BB', 'HB', 'HH', 'HE', 'MV', 'NI', 'NW', 'RP', 'SL', 'SN', 'ST', 'SH', 'TH'];
+        if(!isNaN(calculateProfile.year) && calculateProfile.year >= 1900 && !isNaN(calculateProfile.days) && !isNaN(calculateProfile.startMonth) &&
+            !isNaN(calculateProfile.endMonth) && !isNaN(calculateProfile.minDays) && !isNaN(calculateProfile.maxDays) &&
+            typeof calculateProfile.state === 'string' && validStates.includes(calculateProfile.state.toUpperCase()))
+        {
             if(calculateProfile.days < 0) return null;
             if(calculateProfile.startMonth < 0 || calculateProfile.startMonth >= calculateProfile.endMonth) return null;
             if(calculateProfile.endMonth > 11 || calculateProfile.endMonth <= calculateProfile.startMonth) return null;
@@ -68,11 +61,6 @@ function fullApiMatch(query) {
         }
     }
     return null;
-}
-
-async function handleFullApiRequest(query, calculationProfile) {
-    const data = await getOptimizedPeriods(calculationProfile);
-    return data ? data : null;
 }
 
 server.get('/api', (req, res) => {
@@ -86,9 +74,9 @@ server.get('/api', (req, res) => {
         const numberOfQueries = Object.keys(req.query).length;
 
         if(numberOfQueries === 9) {
-            const calculationProfile = fullApiMatch(req.query);
+            const calculationProfile = generateProfileByParameter(req.query);
             if(calculationProfile) {
-                handleFullApiRequest(req.query, calculationProfile).then(data => {
+                getOptimizedPeriods(calculationProfile).then(data => {
                     if(data) {
                         res.json(data);
                     } else {
