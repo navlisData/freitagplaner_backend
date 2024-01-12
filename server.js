@@ -70,27 +70,23 @@ server.get('/api', (req, res) => {
     const state = req.query.state;
 
     let errorBody = '';
-    if(minimumApiMatch(year, state)) {
-        const numberOfQueries = Object.keys(req.query).length;
+    const numberOfQueries = Object.keys(req.query).length;
 
-        if(numberOfQueries === 9) {
-            const calculationProfile = generateProfileByParameter(req.query);
-            if(calculationProfile) {
-                getOptimizedPeriods(calculationProfile).then(data => {
-                    if(data) {
-                        res.json(data);
-                    } else {
-                        res.status(400).send('Error with the feiertage-api. Please check https://feiertage-api.de for more information');
-                    }
-                });
-            } else {
-                res.status(400).send('Query parameters doesnt match required conditions. View API documentation for more information');
-            }
+    if(numberOfQueries === 9) {
+        const calculationProfile = generateProfileByParameter(req.query);
+        if(calculationProfile) {
+            getOptimizedPeriods(calculationProfile).then(data => {
+                if(data) {
+                    res.json(data);
+                } else {
+                    res.status(400).send('Error with the feiertage-api. Please check https://feiertage-api.de for more information');
+                }
+            });
         } else {
-            res.status(400).send('Invalid amount of parameters, nine are needed. View API documentation for more information');
+            res.status(400).send('Query parameters doesnt match required conditions. View API documentation for more information');
         }
     } else {
-        res.status(400).send('Year or state doesnt match required conditions. View API documentation for more information');
+        res.status(400).send('Invalid amount of parameters, nine are needed. View API documentation for more information');
     }
 })
 
