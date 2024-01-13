@@ -1,3 +1,4 @@
+const {get} = require("axios");
 const WEEKEND = 'Wochenende';
 const HOLIDAY = 'Feiertag';
 const WORKINGDAY = 'Arbeitstag';
@@ -6,9 +7,9 @@ module.exports = { getOptimizedPeriods };
 
 async function fetchApi(year, state) {
     try {
-        const response = await fetch("https://feiertage-api.de/api/?jahr=" + year + "&nur_land=" + state);
-        if(response.ok) {
-            return await response.json();
+        const response = await get("https://feiertage-api.de/api/?jahr=" + year + "&nur_land=" + state);
+        if(response.status === 200) {
+            return response.data;
         } else {
             throw new Error('Network response was not ok.');
         }

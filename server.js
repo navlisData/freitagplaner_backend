@@ -9,18 +9,19 @@ const axios = require('axios'); // Use axios for API requests
 const cors = require('cors'); // Require cors module
 const {getOptimizedPeriods} = require("./optimization");
 
+server.use(cors());
 // const corsOptions = {
 //     origin: 'http://localhost:5173', //Allow only for specific services
 //     optionsSuccessStatus: 200 // For some older browser
 // };
 
-server.use(cors());
 
 // Set the default page
-server.get('/', (req, res)=> {
-    // Send html file as a "landing page"
-    res.sendFile('index.html', {root: __dirname});
-});
+// server.get('*', (req, res)=> {
+//     // Send html file as a "landing page"
+//     res.sendFile('index.html', {root: __dirname});
+//     // res.sendFile(join(__dirname, 'index.html'));
+// });
 
 function generateProfileByParameter(query) {
     if ((query.year) &&
@@ -64,15 +65,7 @@ function generateProfileByParameter(query) {
 }
 
 server.get('/api', (req, res) => {
-    console.log("request incoming")
-
-    let year = req.query.year;
-    const state = req.query.state;
-
-    let errorBody = '';
-    const numberOfQueries = Object.keys(req.query).length;
-
-    if(numberOfQueries === 9) {
+    if(Object.keys(req.query).length === 9) {
         const calculationProfile = generateProfileByParameter(req.query);
         if(calculationProfile) {
             getOptimizedPeriods(calculationProfile).then(data => {
@@ -83,10 +76,10 @@ server.get('/api', (req, res) => {
                 }
             });
         } else {
-            res.status(400).send('Query parameters doesnt match required conditions. View API documentation for more information');
+            res.status(400).send('Query parameters doesnt match required conditions. View API documentation for more information: https://freitagplaner.de/api-documentation');
         }
     } else {
-        res.status(400).send('Invalid amount of parameters, nine are needed. View API documentation for more information');
+        res.status(400).send('Invalid amount of parameters, nine are needed. View API documentation for more information: https://freitagplaner.de/api-documentation');
     }
 })
 
