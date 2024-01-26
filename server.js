@@ -1,27 +1,19 @@
-// Node.js backend
-
 // Use the express module for the server
 const express = require('express');
 const server = express();
 const port = 8081;
 
-const axios = require('axios'); // Use axios for API requests
-const cors = require('cors'); // Require cors module
-const {getOptimizedPeriods} = require("./optimization");
+const cors = require('cors');
+const { getOptimizedPeriods } = require("./optimization");
 
 server.use(cors());
-// const corsOptions = {
-//     origin: 'http://localhost:5173', //Allow only for specific services
-//     optionsSuccessStatus: 200 // For some older browser
-// };
+/*
+const corsOptions = {
+    origin: 'http://localhost:5173', //Allow only for specific services
+    optionsSuccessStatus: 200 // For some older browser
+};
+ */
 
-
-// Set the default page
-// server.get('*', (req, res)=> {
-//     // Send html file as a "landing page"
-//     res.sendFile('index.html', {root: __dirname});
-//     // res.sendFile(join(__dirname, 'index.html'));
-// });
 
 function generateProfileByParameter(query) {
     if ((query.year) &&
@@ -76,7 +68,7 @@ server.get('/api', (req, res) => {
                 }
             });
         } else {
-            res.status(400).send('Query parameters doesnt match required conditions. View API documentation for more information: https://freitagplaner.de/api-documentation');
+            res.status(400).send('Query parameters dont match required conditions. View API documentation for more information: https://freitagplaner.de/api-documentation');
         }
     } else {
         res.status(400).send('Invalid amount of parameters, nine are needed. View API documentation for more information: https://freitagplaner.de/api-documentation');
